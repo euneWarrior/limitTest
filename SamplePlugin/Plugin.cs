@@ -53,6 +53,8 @@ MainWindow.IsOpen = true;
         WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(MainWindow);
 
+		PluginInterface.UiBuilder.Draw += DrawUI;
+
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
             HelpMessage = "A useful message to display in /xlhelp"
@@ -80,7 +82,7 @@ MainWindow.IsOpen = true;
         MainWindow.Dispose();
 	Framework.Update -= OnFrameworkUpdate;
     CommandManager.RemoveHandler("/ptestping");
-
+	PluginInterface.UiBuilder.Draw -= DrawUI;
         CommandManager.RemoveHandler(CommandName);
     }
 
