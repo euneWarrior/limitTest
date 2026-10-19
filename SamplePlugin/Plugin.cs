@@ -2,14 +2,72 @@
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using System.IO;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using SamplePlugin.Windows;
 
+
 namespace SamplePlugin;
+private void OnFrameworkUpdate(IFramework framework)
+{
+    if (!ClientState.IsLoggedIn) return;
+
+    int currentPartySize = PartyList.Length; 
+
+    if (currentPartySize == 8)
+    {
+        if (!wasPartyFullLastFrame)
+        {
+            wasPartyFullLastFrame = true;
+            
+            Task.Run(async () => {
+                await SendDiscordNotificationAsync("we filled btw");
+            });
+        }
+    }
+    else
+    {
+        wasPartyFullLastFrame = false;
+    }
+}
+private async Task SendDiscordNotificationAsync(string message)
+{
+    string webhookUrl = Configuration.DiscordWebhookUrl;
+
+    if (string.IsNullOrWhiteSpace(webhookUrl))
+    {
+        Log.Warning("you didnt enter the link dipshit");
+        return;
+    }
+
+    try
+    {
+        var payload = new { content = message };
+        var json = JsonSerializer.Serialize(payload);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await httpClient.PostAsync(webhookUrl, content);
+        if (!response.IsSuccessStatusCode)
+        {
+            Log.Error($"Failed to send Discord ping. Status: {response.StatusCode}");
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "An error occurred while sending the Discord webhook request.");
+    }
+}
 
 public sealed class Plugin : IDalamudPlugin
 {
+
+    private bool wasPartyFullLastFrame = false;
+    private static readonly HttpClient httpClient = new();
+
     [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
     [PluginService] internal static ITextureProvider TextureProvider { get; private set; } = null!;
     [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
@@ -18,6 +76,8 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
 
     private const string CommandName = "/pmycommand";
+
+    Framework.Update += OnFrameworkUpdate;
 
     public Configuration Configuration { get; init; }
 
@@ -42,8 +102,7 @@ public sealed class Plugin : IDalamudPlugin
         {
             HelpMessage = "A useful message to display in /xlhelp"
         });
-
-        PluginInterface.UiBuilder.Draw += DrawUI;
+        CommandManager.AddHandler("/ptestping", new CommandInfo(OnTestCommand) { HelpMessage = "TestTEST123123" });
 
         // This adds a button to the plugin installer entry of this plugin which allows
         // to toggle the display status of the configuration ui
@@ -64,6 +123,8 @@ public sealed class Plugin : IDalamudPlugin
 
         ConfigWindow.Dispose();
         MainWindow.Dispose();
+	Framework.Update -= OnFrameworkUpdate;
+    CommandManager.RemoveHandler("/ptestping");
 
         CommandManager.RemoveHandler(CommandName);
     }
@@ -78,4 +139,9 @@ public sealed class Plugin : IDalamudPlugin
 
     public void ToggleConfigUI() => ConfigWindow.Toggle();
     public void ToggleMainUI() => MainWindow.Toggle();
+    private void OnTestCommand(string command, string args)
+    {
+        Log.Information("Sending test ping to Discord...");
+        _ = SendDiscordNotificationAsync("we filled btw hey its me dd im testing hahahahahahahahahaha");
+    }
 }

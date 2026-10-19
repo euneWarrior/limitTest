@@ -8,6 +8,13 @@ namespace SamplePlugin.Windows;
 public class ConfigWindow : Window, IDisposable
 {
     private Configuration Configuration;
+    var webhook = Plugin.Configuration.DiscordWebhookUrl;
+
+	if (ImGui.InputText("Discord Webhook URL", ref webhook, 200))
+	{
+		Plugin.Configuration.DiscordWebhookUrl = webhook;
+		Plugin.Configuration.Save();
+	}
 
     // We give this window a constant ID using ###
     // This allows for labels being dynamic, like "{FPS Counter}fps###XYZ counter window",
