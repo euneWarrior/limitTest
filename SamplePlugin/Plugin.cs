@@ -12,55 +12,6 @@ using SamplePlugin.Windows;
 
 
 namespace SamplePlugin;
-private void OnFrameworkUpdate(IFramework framework)
-{
-    if (!ClientState.IsLoggedIn) return;
-
-    int currentPartySize = PartyList.Length; 
-
-    if (currentPartySize == 8)
-    {
-        if (!wasPartyFullLastFrame)
-        {
-            wasPartyFullLastFrame = true;
-            
-            Task.Run(async () => {
-                await SendDiscordNotificationAsync("we filled btw");
-            });
-        }
-    }
-    else
-    {
-        wasPartyFullLastFrame = false;
-    }
-}
-private async Task SendDiscordNotificationAsync(string message)
-{
-    string webhookUrl = Configuration.DiscordWebhookUrl;
-
-    if (string.IsNullOrWhiteSpace(webhookUrl))
-    {
-        Log.Warning("you didnt enter the link dipshit");
-        return;
-    }
-
-    try
-    {
-        var payload = new { content = message };
-        var json = JsonSerializer.Serialize(payload);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        var response = await httpClient.PostAsync(webhookUrl, content);
-        if (!response.IsSuccessStatusCode)
-        {
-            Log.Error($"Failed to send Discord ping. Status: {response.StatusCode}");
-        }
-    }
-    catch (Exception ex)
-    {
-        Log.Error(ex, "An error occurred while sending the Discord webhook request.");
-    }
-}
 
 public sealed class Plugin : IDalamudPlugin
 {
@@ -74,10 +25,10 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IClientState ClientState { get; private set; } = null!;
     [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
-
+	[PluginService] internal static IFramework Framework { get; private set; } = null!;
+    [PluginService] internal static IPartyList PartyList { get; private set; } = null!;
     private const string CommandName = "/pmycommand";
 
-    Framework.Update += OnFrameworkUpdate;
 
     public Configuration Configuration { get; init; }
 
@@ -88,6 +39,8 @@ public sealed class Plugin : IDalamudPlugin
     public Plugin()
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+
+	Framework.Update += OnFrameworkUpdate;
 
         // you might normally want to embed resources and load them from the manifest stream
         var goatImagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "goat.png");
@@ -144,4 +97,56 @@ public sealed class Plugin : IDalamudPlugin
         Log.Information("Sending test ping to Discord...");
         _ = SendDiscordNotificationAsync("we filled btw hey its me dd im testing hahahahahahahahahaha");
     }
+
+	private void OnFrameworkUpdate(IFramework framework)
+{
+    if (!ClientState.IsLoggedIn) return;
+
+    int currentPartySize = PartyList.Length; 
+
+    if (currentPartySize == 8)
+    {
+        if (!wasPartyFullLastFrame)
+        {
+            wasPartyFullLastFrame = true;
+            
+            Task.Run(async () => {
+                await SendDiscordNotificationAsync("we filled btw");
+            });
+        }
+    }
+    else
+    {
+        wasPartyFullLastFrame = false;
+    }
+}
+private async Task SendDiscordNotificationAsync(string message)
+{
+    string webhookUrl = Configuration.DiscordWebhookUrl;
+
+    if (string.IsNullOrWhiteSpace(webhookUrl))
+    {
+        Log.Warning("you didnt enter the link dipshit");
+        return;
+    }
+
+    try
+    {
+        var payload = new { content = message };
+        var json = JsonSerializer.Serialize(payload);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await httpClient.PostAsync(webhookUrl, content);
+        if (!response.IsSuccessStatusCode)
+        {
+            Log.Error($"Failed to send Discord ping. Status: {response.StatusCode}");
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "An error occurred while sending the Discord webhook request.");
+    }
+}
+
+	
 }
