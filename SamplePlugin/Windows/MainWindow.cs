@@ -60,7 +60,7 @@ public class MainWindow : Window, IDisposable
                 {
                     using (ImRaii.PushIndent(55f))
                     {
-                        ImGui.Image(goatImage.ImGuiHandle, new Vector2(goatImage.Width, goatImage.Height));
+                        ImGui.Image(this.GoatImage.Handle, new Vector2(this.GoatImage.Width, this.GoatImage.Height));
                     }
                 }
                 else
