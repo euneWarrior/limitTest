@@ -47,6 +47,9 @@ public sealed class Plugin : IDalamudPlugin
         ConfigWindow = new ConfigWindow(this);
         MainWindow = new MainWindow(this);
 
+		ConfigWindow.IsOpen = true;
+MainWindow.IsOpen = true;
+
         WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(MainWindow);
 
@@ -85,6 +88,7 @@ public sealed class Plugin : IDalamudPlugin
     {
         // in response to the slash command, just toggle the display status of our main ui
         ToggleMainUI();
+		IsOpen = true;
     }
 
     private void DrawUI() => WindowSystem.Draw();
