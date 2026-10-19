@@ -88,7 +88,6 @@ MainWindow.IsOpen = true;
     {
         // in response to the slash command, just toggle the display status of our main ui
         ToggleMainUI();
-		IsOpen = true;
     }
 
     private void DrawUI() => WindowSystem.Draw();
