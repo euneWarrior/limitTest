@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using Dalamud.Interface.Windowing;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 
 namespace SamplePlugin.Windows;
 
@@ -17,7 +17,7 @@ public class ConfigWindow : Window, IDisposable
         Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
                 ImGuiWindowFlags.NoScrollWithMouse;
 
-        Size = new Vector2(232, 90);
+        Size = new Vector2(300, 140);
         SizeCondition = ImGuiCond.Always;
 
         Configuration = plugin.Configuration;
@@ -41,15 +41,15 @@ public class ConfigWindow : Window, IDisposable
     public override void Draw()
     {
 
-	var webhook = Plugin.Configuration.DiscordWebhookUrl;
+	var webhook = Configuration.DiscordWebhookUrl;
 
 	if (ImGui.InputText("Discord Webhook URL", ref webhook, 200))
 	{
-		Plugin.Configuration.DiscordWebhookUrl = webhook;
-		Plugin.Configuration.Save();
+		Configuration.DiscordWebhookUrl = webhook;
+		Configuration.Save();
 	}
 	ImGui.Separator();
-	
+
         // can't ref a property, so use a local copy
         var configValue = Configuration.SomePropertyToBeSavedAndWithADefault;
         if (ImGui.Checkbox("Random Config Bool", ref configValue))
