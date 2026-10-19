@@ -28,6 +28,7 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
 	[PluginService] internal static IFramework Framework { get; private set; } = null!;
     [PluginService] internal static IPartyList PartyList { get; private set; } = null!;
+	[PluginService] internal static IPlayerState PlayerState { get; private set; } = null!;
     private const string CommandName = "/pmycommand";
 
 
@@ -44,7 +45,7 @@ public sealed class Plugin : IDalamudPlugin
 	Framework.Update += OnFrameworkUpdate;
 
         ConfigWindow = new ConfigWindow(this);
-        MainWindow = new MainWindow();
+        MainWindow = new MainWindow(this);
 
         WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(MainWindow);

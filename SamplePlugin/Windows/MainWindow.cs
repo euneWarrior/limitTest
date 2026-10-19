@@ -10,7 +10,6 @@ namespace SamplePlugin.Windows;
 
 public class MainWindow : Window, IDisposable
 {
-    private string GoatImagePath;
     private Plugin Plugin;
 
     // We give this window a hidden ID using ##
@@ -32,9 +31,9 @@ public class MainWindow : Window, IDisposable
     public override void Draw() {
 	ImGui.Text($"Status: Monitoring Party Finder...");
         
-        if (Plugin.ClientState.IsLoggedIn)
+        if (Plugin.ClientState.IsLoggedIn && Plugin.PlayerState.isLoaded)
         {
-            ImGui.Text($"Logged in as: {Plugin.ClientState.LocalPlayerName}");
+            ImGui.Text($"Logged in as: {Plugin.PlayerState.CharacterName}");
         }
 
         ImGui.Spacing();
