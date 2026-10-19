@@ -31,7 +31,7 @@ public class MainWindow : Window, IDisposable
     public override void Draw() {
 	ImGui.Text($"Status: Monitoring Party Finder...");
         
-        if (Plugin.ClientState.IsLoggedIn && Plugin.PlayerState.isLoaded)
+        if (Plugin.ClientState.IsLoggedIn)
         {
             ImGui.Text($"Logged in as: {Plugin.PlayerState.CharacterName}");
         }
